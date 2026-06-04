@@ -1,0 +1,56 @@
+#!/bin/bash
+# Script para configurar Alexa Skill FÁCIL
+# Tú solo ejecutas y copias/pegas
+
+echo "🎤 CONFIGURACIÓN ALEXA FÁCIL - Sigue estos pasos:"
+echo ""
+
+echo "=== PASO 1: ngrok HTTPS (2 minutos) ==="
+echo "1. Abre Terminal en tu Mac"
+echo "2. Ejecuta: ngrok http 5000"
+echo "3. Copia URL HTTPS (ej: https://abc123.ngrok.io)"
+echo "4. Pégala aquí cuando la tengas"
+echo ""
+
+echo "=== PASO 2: Crear Skill (5 minutos) ==="
+echo "1. Abre: https://developer.amazon.com/alexa/console/ask"
+echo "2. Login con tu cuenta Amazon"
+echo "3. Click 'Create Skill' (naranja)"
+echo "4. Skill name: 'Jarvis Assistant'"
+echo "5. Default language: Spanish (ES)"
+echo "6. Choose model: Custom"
+echo "7. Hosting: Provision your own"
+echo "8. Click 'Create Skill'"
+echo ""
+
+echo "=== PASO 3: Configurar Skill (copiar/pegar) ==="
+echo "EN 'Build' tab:"
+echo "1. Invocation → Skill invocation name: 'jarvis asistente'"
+echo "2. Save Model"
+echo ""
+echo "EN 'Endpoint' tab:"
+echo "1. Service endpoint type: HTTPS"
+echo "2. Default region: [PEGA_AQUI_TU_URL_NGROK]/alexa"
+echo "3. Save Endpoints"
+echo ""
+
+echo "=== PASO 4: Testing (2 minutos) ==="
+echo "EN 'Test' tab:"
+echo "1. Enable testing (toggle)"
+echo "2. En 'Type or speak': 'abre jarvis'"
+echo "3. Debería responder"
+echo ""
+
+echo "=== YO HAGO: ==="
+echo "✅ Webhook corriendo en servidor"
+echo "✅ Respuestas predefinidas para DAW"
+echo "✅ Manejo de errores"
+echo "✅ Logging y debugging"
+echo ""
+
+echo "🚀 Para empezar:"
+echo "1. Primero ngrok (Paso 1)"
+echo "2. Luego Skill (Pasos 2-3)"
+echo "3. Final testing (Paso 4)"
+echo ""
+echo "¿Listo para ngrok?"

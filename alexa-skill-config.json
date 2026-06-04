@@ -1,0 +1,90 @@
+{
+  "skill": {
+    "name": "Jarvis Assistant",
+    "description": "Tu asistente personal DAW con acceso a proyectos, MySQL y tareas",
+    "category": "EDUCATION_AND_REFERENCE",
+    "keywords": ["DAW", "asistente", "MySQL", "Java", "estudiante", "proyectos"],
+    "distributionCountries": ["ES"],
+    "testingInstructions": "Di 'Alexa, abre Jarvis' o 'Alexa, pregunta a Jarvis sobre MySQL'"
+  },
+  "interactionModel": {
+    "languageModel": {
+      "locale": "es-ES",
+      "invocationName": "jarvis asistente",
+      "intents": [
+        {
+          "name": "AskJarvisIntent",
+          "slots": [
+            {
+              "name": "question",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "pregunta a jarvis {question}",
+            "dile a jarvis {question}",
+            "jarvis {question}",
+            "pregúntale a jarvis {question}",
+            "quiero saber {question}",
+            "dime {question}"
+          ]
+        },
+        {
+          "name": "GetTasksIntent",
+          "slots": [],
+          "samples": [
+            "qué tareas tengo",
+            "cuáles son mis tareas",
+            "tareas pendientes",
+            "qué deberes tengo"
+          ]
+        },
+        {
+          "name": "ServerStatusIntent",
+          "slots": [],
+          "samples": [
+            "estado del servidor",
+            "cómo está el servidor",
+            "servidor mysql",
+            "base de datos"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ]
+    }
+  },
+  "endpoint": {
+    "uri": "REPLACE_WITH_YOUR_HTTPS_URL/alexa",
+    "type": "HTTPS",
+    "sslCertificateType": "Wildcard"
+  },
+  "permissions": [],
+  "privacyAndCompliance": {
+    "locales": {
+      "es-ES": {
+        "privacyPolicyUrl": "",
+        "termsOfUseUrl": ""
+      }
+    },
+    "allowsPurchases": false,
+    "usesPersonalInfo": false,
+    "isChildDirected": false,
+    "isExportCompliant": true,
+    "containsAds": false
+  }
+}
