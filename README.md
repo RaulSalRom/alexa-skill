@@ -121,7 +121,7 @@ OPENCLAW_TOKEN=tu_token_aqui
 O pásalas directamente al iniciar:
 
 ```bash
-OPENCLAW_URL=http://192.168.1.80:18789/v1/chat/completions \
+OPENCLAW_URL=http://IP_DEL_SERVIDOR:18789/v1/chat/completions \
 OPENCLAW_TOKEN=tu_token \
 ./scripts/start.sh
 ```

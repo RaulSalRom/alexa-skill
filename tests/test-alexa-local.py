@@ -28,7 +28,7 @@ def create_alexa_request(intent_name="AskJarvisIntent", question="", request_typ
                     "applicationId": "amzn1.ask.skill.test.local"
                 },
                 "user": {
-                    "userId": "test-user-draken"
+                    "userId": "test-user"
                 }
             },
             "request": {
@@ -58,7 +58,7 @@ def create_alexa_request(intent_name="AskJarvisIntent", question="", request_typ
                     "applicationId": "amzn1.ask.skill.test.local"
                 },
                 "user": {
-                    "userId": "test-user-draken"
+                    "userId": "test-user"
                 }
             },
             "request": {
@@ -83,7 +83,7 @@ def create_alexa_request(intent_name="AskJarvisIntent", question="", request_typ
                     "applicationId": "amzn1.ask.skill.test.local"
                 },
                 "user": {
-                    "userId": "test-user-draken"
+                    "userId": "test-user"
                 }
             },
             "request": {

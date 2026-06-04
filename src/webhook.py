@@ -23,10 +23,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Configuración de OpenClaw
-OPENCLAW_URL = os.environ.get(
-    "OPENCLAW_URL",
-    "http://192.168.1.80:18789/v1/chat/completions"
-)
+OPENCLAW_URL = os.environ.get("OPENCLAW_URL", "")
 OPENCLAW_TOKEN = os.environ.get("OPENCLAW_TOKEN", "")
 OPENCLAW_MODEL = os.environ.get("OPENCLAW_MODEL", "openclaw/default")
 
@@ -36,28 +33,26 @@ if not OPENCLAW_TOKEN:
         "Usando respuestas locales como fallback."
     )
 
-def process_jarvis_request(question, user_id="draken"):
+def process_jarvis_request(question, user_id="default"):
     """
     Procesa pregunta y devuelve respuesta de Jarvis
-    Respuestas predefinidas para Alexa Skill
+    Respuestas predefinidas para Alexa Skill (fallback cuando OpenClaw no está disponible)
     """
     question_lower = question.lower()
     
-    # Respuestas predefinidas para DAW estudiante
+    # Respuestas predefinidas genéricas
     responses = {
-        "hola": "¡Hola Draken! Soy Jarvis, tu asistente DAW. ¿En qué puedo ayudarte hoy?",
-        "cómo estás": "Estoy funcionando perfectamente en el servidor. Lista para ayudarte con tus proyectos DAW.",
-        "qué puedes hacer": "Puedo ayudarte con: 1. Tus tareas DAW, 2. Base de datos MySQL, 3. Proyectos Java, 4. Recordatorios, 5. Información del servidor.",
-        "servidor": "Servidor: Ubuntu 24.04, CPU: Intel U7300, RAM: 3.8GB, MySQL: 5.7, Docker activo. IP Tailscale: 100.78.237.50.",
-        "mysql": "MySQL 5.7 corriendo en puerto 3306. Base de datos 'daw_db' activa. Usuario: draken. Acceso vía phpMyAdmin: puerto 8080.",
-        "tareas": "Revisa tu repositorio CFGS-DAW en GitHub. Tienes proyectos Java en 1º-Curso/ y ejercicios SQL.",
+        "hola": "¡Hola! Soy Jarvis, tu asistente. ¿En qué puedo ayudarte hoy?",
+        "cómo estás": "Estoy funcionando perfectamente. Listo para ayudarte.",
+        "qué puedes hacer": "Puedo ayudarte con información general, responder preguntas, y asistirte en diversas tareas. Si conectas OpenClaw, mis respuestas serán mucho más inteligentes.",
+        "servidor": "El servidor está funcionando correctamente. Para más detalles, conecta el webhook con OpenClaw.",
+        "mysql": "MySQL está disponible. Consulta la documentación de tu servidor para más detalles.",
+        "tareas": "Revisa tu sistema de tareas o conecta OpenClaw para integración completa.",
         "hora": "No tengo acceso a hora actual en este endpoint. Usa 'date' en terminal o consulta tu dispositivo.",
-        "adiós": "¡Hasta luego Draken! Recuerda: 'git commit -m \"mensaje claro\"' para buenas prácticas.",
-        "java": "Para aprender Java visita W3Schools. Tu servidor está listo para proyectos Java con MySQL.",
-        "alexa": "Skill Alexa en desarrollo. Webhook activo en puerto 5000. Usa 'Alexa, abre Jarvis' o 'Alexa, pregunta a Jarvis [tu pregunta]'.",
-        "tailscale": "Tailscale configurado. IP: 100.78.237.50. Acceso remoto seguro a MySQL y phpMyAdmin.",
-        "proyectos": "Tus proyectos DAW en ~/daw-projects/. MySQL disponible en puerto 3306. Java pendiente instalar JDK.",
-        "github": "Tu repositorio CFGS-DAW clonado. Cuenta GitHub: jarvisclaw-dev para colaboración por PRs."
+        "adiós": "¡Hasta luego! Recuerda hacer commit con frecuencia: 'git commit -m \"mensaje claro\"'.",
+        "java": "Java está disponible en el servidor. Consulta la documentación para más información.",
+        "alexa": "Skill Alexa en desarrollo. Webhook activo. Usa 'Alexa, abre Jarvis' o 'Alexa, pregunta a Jarvis [tu pregunta]'.",
+        "ayuda": "Puedes preguntarme sobre cualquier tema. Si tienes OpenClaw configurado, obtendrás respuestas de IA inteligentes.",
     }
     
     # Buscar respuesta
@@ -66,7 +61,7 @@ def process_jarvis_request(question, user_id="draken"):
             return responses[key]
     
     # Respuesta por defecto
-    return f"He recibido tu pregunta: '{question}'. Como Jarvis, puedo ayudarte con: Java, MySQL, proyectos DAW, servidor info, o tareas. ¿Puedes ser más específico?"
+    return f"He recibido tu pregunta: '{question}'. Si necesitas respuestas más inteligentes, configura OpenClaw en tu .env."
 
 
 

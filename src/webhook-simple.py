@@ -20,7 +20,7 @@ def process_jarvis_request(question):
         "cómo estás": "El webhook está activo en puerto 5000. Listo para Alexa Skill.",
         "alexa": "Endpoint configurado para Alexa Skill. Necesitas HTTPS para producción.",
         "mysql": "MySQL 5.7 corriendo. Base de datos 'daw_db' disponible.",
-        "servidor": "Servidor Ubuntu con IP Tailscale 100.78.237.50",
+        "servidor": "Servidor Ubuntu funcionando correctamente.",
         "prueba": "✅ Webhook funcionando correctamente."
     }
     
