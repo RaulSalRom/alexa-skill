@@ -124,29 +124,68 @@ def test_alexa_endpoint():
         print(f"   ❌ Error: {response.status_code}")
         return False
     
+    # Verificar modo (OpenClaw o fallback local)
+    try:
+        health = requests.get("http://localhost:5000/health", timeout=5)
+        hdata = health.json()
+        openclaw_mode = hdata.get("openclaw", "unknown")
+        if openclaw_mode == "connected":
+            print(f"   ✅ OpenClaw CONECTADO")
+        elif openclaw_mode == "not_configured":
+            print(f"   ℹ️  OpenClaw no configurado (fallback local)")
+        else:
+            print(f"   ⚠️  OpenClaw: {openclaw_mode}")
+    except:
+        pass
+    
     # Test 2: Pregunta específica
     print("\n2. Testing AskJarvisIntent...")
-    test_questions = [
-        ("hola", "¡Hola Draken!"),
-        ("mysql", "MySQL"),
-        ("servidor", "servidor"),
-        ("tareas", "tareas")
-    ]
+    
+    # En modo OpenClaw solo validamos que devuelva algo coherente
+    # En modo fallback validamos respuestas exactas
+    is_openclaw = openclaw_mode == "connected" if 'openclaw_mode' in dir() else False
+    
+    if is_openclaw:
+        test_questions = [
+            "hola",
+            "quien eres",
+            "que puedes hacer"
+        ]
+    else:
+        test_questions = [
+            ("hola", "¡Hola Draken!"),
+            ("mysql", "MySQL"),
+            ("servidor", "servidor"),
+            ("tareas", "tareas")
+        ]
     
     all_passed = True
-    for question, expected in test_questions:
+    for item in test_questions:
+        if is_openclaw:
+            question = item
+        else:
+            question, expected = item
+        
         req = create_alexa_request(question=question)
-        response = requests.post(WEBHOOK_URL, json=req, timeout=10)
+        response = requests.post(WEBHOOK_URL, json=req, timeout=60)
         
         if response.status_code == 200:
             data = response.json()
             speech = data.get('response', {}).get('outputSpeech', {}).get('text', '')
             
-            if expected.lower() in speech.lower():
-                print(f"   ✅ '{question}': OK")
+            if is_openclaw:
+                # En modo OpenClaw, solo verificar que hay respuesta
+                if speech and len(speech) > 5:
+                    print(f"   ✅ '{question}': {speech[:60]}...")
+                else:
+                    print(f"   ⚠️  '{question}': respuesta vacía o muy corta")
+                    all_passed = False
             else:
-                print(f"   ⚠️  '{question}': Esperaba '{expected}', obtuve '{speech[:30]}...'")
-                all_passed = False
+                if expected.lower() in speech.lower():
+                    print(f"   ✅ '{question}': OK")
+                else:
+                    print(f"   ⚠️  '{question}': Esperaba '{expected}', obtuve '{speech[:30]}...'")
+                    all_passed = False
         else:
             print(f"   ❌ '{question}': Error {response.status_code}")
             all_passed = False
@@ -223,13 +262,27 @@ def main():
         success = test_alexa_endpoint()
         
         print("\n" + "=" * 60)
+        
+        # Mostrar modo de operación
+        try:
+            health = requests.get("http://localhost:5000/health", timeout=3)
+            hdata = health.json()
+            oc_mode = hdata.get("openclaw", "unknown")
+            mode_str = {
+                "connected": "OpenClaw (IA real)",
+                "not_configured": "Fallback local (respuestas fijas)",
+                "unreachable": "OpenClaw configurado pero no accesible"
+            }.get(oc_mode, oc_mode)
+            print(f"📡 Modo: {mode_str}")
+        except:
+            pass
+        
         if success:
             print("🎉 TODOS LOS TESTS PASARON")
             print("✅ Skill Alexa funcionando correctamente")
             print("\n📋 Resumen:")
             print("1. Webhook activo en puerto 5000")
-            print("2. Respuestas predefinidas funcionando")
-            print("3. Listo para conectar a Amazon Console")
+            print("2. Skill listo para Amazon Console")
             print("\n🚀 Siguiente paso:")
             print("   Usa ngrok para HTTPS: ngrok http 5000")
             print("   Luego crea Skill en Amazon Developer Console")

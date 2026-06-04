@@ -2,6 +2,7 @@
 """
 Alexa Webhook para Jarvis Assistant
 Endpoint que recibirá requests de Alexa Skill
+Proxy a OpenClaw Gateway vía API OpenAI-compatible
 """
 
 import json
@@ -9,12 +10,31 @@ import logging
 from flask import Flask, request, jsonify
 import sys
 import os
+import requests
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Configuración de OpenClaw
+OPENCLAW_URL = os.environ.get(
+    "OPENCLAW_URL",
+    "http://192.168.1.80:18789/v1/chat/completions"
+)
+OPENCLAW_TOKEN = os.environ.get("OPENCLAW_TOKEN", "")
+OPENCLAW_MODEL = os.environ.get("OPENCLAW_MODEL", "openclaw/default")
+
+if not OPENCLAW_TOKEN:
+    logger.warning(
+        "OPENCLAW_TOKEN no configurado. "
+        "Usando respuestas locales como fallback."
+    )
 
 def process_jarvis_request(question, user_id="draken"):
     """
@@ -50,6 +70,72 @@ def process_jarvis_request(question, user_id="draken"):
 
 
 
+def ask_openclaw(question, user_id="alexa"):
+    """
+    Envía pregunta a OpenClaw vía API OpenAI-compatible
+    y devuelve la respuesta. Usa respuestas locales como fallback.
+    """
+    logger.info(f"Consultando OpenClaw: '{question[:80]}...'")
+
+    if not OPENCLAW_TOKEN:
+        logger.warning("OpenClaw no configurado, usando fallback local")
+        return process_jarvis_request(question, user_id)
+
+    try:
+        payload = {
+            "model": OPENCLAW_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres Jarvis, un asistente personal inteligente. "
+                        "Responde siempre en español, de forma clara y concisa. "
+                        "Máximo 2-3 oraciones a menos que necesites más detalle."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": question
+                }
+            ],
+            "max_tokens": 300,
+            "temperature": 0.3
+        }
+
+        headers = {
+            "Authorization": f"Bearer {OPENCLAW_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        resp = requests.post(
+            OPENCLAW_URL,
+            json=payload,
+            headers=headers,
+            timeout=60
+        )
+        resp.raise_for_status()
+
+        data = resp.json()
+        choices = data.get("choices", [])
+        if choices:
+            text = choices[0].get("message", {}).get("content", "")
+            logger.info(f"OpenClaw respondió ({len(text)} chars)")
+            return text
+
+        logger.warning("OpenClaw no devolvió contenido")
+        return process_jarvis_request(question, user_id)
+
+    except requests.exceptions.Timeout:
+        logger.error("OpenClaw timeout (60s), usando fallback local")
+        return process_jarvis_request(question, user_id)
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"OpenClaw no accesible: {e}, usando fallback local")
+        return process_jarvis_request(question, user_id)
+    except Exception as e:
+        logger.error(f"Error con OpenClaw: {e}, usando fallback local")
+        return process_jarvis_request(question, user_id)
+
+
 def validate_alexa_request(request_data):
     """Valida que el request sea de Alexa (simplificado para desarrollo)"""
     try:
@@ -70,10 +156,23 @@ def validate_alexa_request(request_data):
 @app.route('/health', methods=['GET'])
 def health_check():
     """Endpoint para verificar que el servicio está activo"""
+    openclaw_status = "not_configured"
+    if OPENCLAW_TOKEN:
+        try:
+            hc = requests.get(
+                OPENCLAW_URL.replace("/v1/chat/completions", "/health"),
+                timeout=5
+            )
+            openclaw_status = "connected" if hc.ok else "error"
+        except Exception:
+            openclaw_status = "unreachable"
+
     return jsonify({
         'status': 'healthy',
         'service': 'Jarvis Alexa Webhook',
-        'version': '1.0.0',
+        'version': '2.0.0',
+        'openclaw': openclaw_status,
+        'openclaw_url': OPENCLAW_URL,
         'endpoints': ['/alexa', '/health']
     })
 
@@ -121,7 +220,8 @@ def alexa_endpoint():
                 question = question_slot.get('value', '')
                 
                 if question:
-                    response_text = process_jarvis_request(question)
+                    # Proxy a OpenClaw, con fallback local
+                    response_text = ask_openclaw(question)
                 else:
                     response_text = "¿Qué te gustaría preguntarme? Por ejemplo: 'pregunta a Jarvis sobre MySQL'"
                     
@@ -187,11 +287,12 @@ def test_endpoint():
         '''
     else:
         question = request.form.get('question', '')
-        response = process_jarvis_request(question)
+        response = ask_openclaw(question)
         return f'''
         <h1>Respuesta de Jarvis</h1>
         <p><strong>Pregunta:</strong> {question}</p>
         <p><strong>Respuesta:</strong> {response}</p>
+        <p><small>Modo: {"OpenClaw" if OPENCLAW_TOKEN else "Fallback local"}</small></p>
         <a href="/test">Volver</a>
         '''
 
@@ -205,5 +306,8 @@ if __name__ == '__main__':
     logger.info("  GET  /health - Health check")
     logger.info("  POST /alexa  - Alexa webhook")
     logger.info("  GET  /test   - Test interface")
+    logger.info(f"OpenClaw: {'CONECTADO' if OPENCLAW_TOKEN else 'NO CONFIGURADO (usando fallback local)'}")
+    if OPENCLAW_TOKEN:
+        logger.info(f"OpenClaw URL: {OPENCLAW_URL}")
     
     app.run(host=host, port=port, debug=True)

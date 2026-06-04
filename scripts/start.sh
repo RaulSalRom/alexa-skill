@@ -30,11 +30,23 @@ pip install -r "$PROJECT_DIR/requirements.txt"
 PORT=${PORT:-5000}
 HOST=${HOST:-0.0.0.0}
 
+# Configuración de OpenClaw (opcional)
+# Si no se configura, el webhook usa respuestas locales como fallback
+export OPENCLAW_URL="${OPENCLAW_URL:-}"
+export OPENCLAW_TOKEN="${OPENCLAW_TOKEN:-}"
+export OPENCLAW_MODEL="${OPENCLAW_MODEL:-openclaw/default}"
+
 echo ""
 echo "=== INFORMACIÓN ==="
 echo "Webhook URL: http://$HOST:$PORT/alexa"
 echo "Health check: http://$HOST:$PORT/health"
 echo "Test interface: http://$HOST:$PORT/test"
+if [ -n "$OPENCLAW_TOKEN" ]; then
+    echo "OpenClaw: CONECTADO a $OPENCLAW_URL"
+else
+    echo "OpenClaw: NO CONFIGURADO (usando respuestas locales)"
+    echo "  Configura OPENCLAW_URL y OPENCLAW_TOKEN para conectar con OpenClaw"
+fi
 echo ""
 echo "Para Alexa Skill Development:"
 echo "1. Usa ngrok para HTTPS: ngrok http $PORT"
