@@ -188,4 +188,4 @@ El webhook está diseñado para ejecutarse en un servidor Ubuntu y exponerse med
 
 ## Licencia
 
-Uso personal y educativo.
+Uso personal y educativo. Aclaramos que somos estudiantes y solo es un proyecto abierto.
