@@ -10,7 +10,7 @@
   "interactionModel": {
     "languageModel": {
       "locale": "es-ES",
-      "invocationName": "jarvis asistente",
+      "invocationName": "jarvis",
       "intents": [
         {
           "name": "AskJarvisIntent",
@@ -26,7 +26,14 @@
             "jarvis {question}",
             "pregúntale a jarvis {question}",
             "quiero saber {question}",
-            "dime {question}"
+            "dime {question}",
+            "quisiera saber {question}",
+            "cuéntame sobre {question}",
+            "explícame {question}",
+            "habla sobre {question}",
+            "necesito saber {question}",
+            "qué sabes de {question}",
+            "dime más sobre {question}"
           ]
         },
         {
@@ -71,7 +78,7 @@
   "endpoint": {
     "uri": "REPLACE_WITH_YOUR_HTTPS_URL/alexa",
     "type": "HTTPS",
-    "sslCertificateType": "Wildcard"
+    "sslCertificateType": "Trusted"
   },
   "permissions": [],
   "privacyAndCompliance": {
